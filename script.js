@@ -25,8 +25,9 @@ window.onload = function() {
     element: document.body,
     engine: engine,
     options: {
+      wireframes: false,
       width: canvas.width,
-      height: canvas.height
+      height: canvas.height,
     }
   });
 
@@ -45,16 +46,16 @@ window.onload = function() {
       flipper2 = Bodies.fromVertices(245, 702, flipperPath2, {isStatic: true}),
       vector3 = Vector.create(61, 702),
       vector4 = Vector.create(281, 702);
+      var composite1 = Composite.create();
+      Composite.add(composite1, flipper1);
+      var composite2 = Composite.create();
+      Composite.add(composite2, flipper2);
+      Composite.rotate(composite1, 0.4, vector3);
+      Composite.rotate(composite2, -0.4, vector4);
 
   var ball,
       launcher,
       constr1;
-
-  var composite1 = Composite.create();
-  Composite.add(composite1, flipper1);
-
-  var composite2 = Composite.create();
-  Composite.add(composite2, flipper2);
 
   //var box = Bodies.rectangle(x, y, w, h, { isStatic: true });
   var bodies = [
@@ -81,6 +82,9 @@ window.onload = function() {
   //ball
     ball = Bodies.circle(380, 740, 20, {friction: 0.1, restitution: 1, frictionStatic: 0.1, frictionAir: 0}),
 
+  //indicator
+    Bodies.rectangle(60, 780, 100, 20, { isStatic: true }),
+
   //flippers
     flipper1,
     flipper2
@@ -104,24 +108,17 @@ window.onload = function() {
     launched = 1;
   }
 
-  var rotation = 0;
-
-  function rotateFunc(){
-    if(rotation === 0){
-      Matter.Composite.rotate(composite1, -0.4, vector3);
-      Matter.Composite.rotate(composite2, 0.4, vector4);
-      rotation = 1;
-    }
-
-    if(rotation === 1){
-      rotation = 2;
-      window.setTimeout(function(){
-        Matter.Composite.rotate(composite1, 0.4, vector3);
-        Matter.Composite.rotate(composite2, -0.4, vector4);
-        rotation = 0;
-      }, 100);
+  function constrFunc(power){
+    if(!constr1){
+      constr1 = Constraint.create({ bodyA: launcher, pointB: { x: 380, y: 800 }, length: 45 + power, stiffness: 1});
+      World.add(world, constr1);
     }
   }
+
+  var timeout1,
+      power = 0,
+      rotation = 0,
+      indicate = 0;
 
   document.onkeydown = function(event) {
     event = event || window.event;
@@ -129,12 +126,44 @@ window.onload = function() {
     switch (event.keyCode){
       case 32:
         //launch(-28);
-        if(!constr1){
-          constr1 = Constraint.create({ bodyA: launcher, pointB: { x: 380, y: 800 }, length: 60, stiffness: 1});
-          World.add(world, constr1);
+        timeout1 = setTimeout(function(){
+          if(power < 25){
+            power++;
+            if(indicate === 0){
+              var indicatorLength = power*4;
+              var indicator = Bodies.rectangle(10 + (indicatorLength / 2), 780, indicatorLength, 20, {
+                render: {
+                  fillStyle: 'white'
+                },
+                isStatic: true
+              });
+              World.add(world, indicator);
+            }
+          }
+        }, 100);
+        if(rotation === 0){
+          Matter.Composite.rotate(composite1, -0.5, vector3);
+          Matter.Composite.rotate(composite2, 0.5, vector4);
+          rotation = 1;
         }
-        rotateFunc();
 
+        break;
+    }
+  }
+
+  document.onkeyup = function(event) {
+    event = event || window.event;
+
+    switch (event.keyCode){
+      case 32:
+        indicate = 1;
+        clearTimeout(timeout1);
+        constrFunc(power);
+        if(rotation === 1){
+            Matter.Composite.rotate(composite1, 0.5, vector3);
+            Matter.Composite.rotate(composite2, -0.5, vector4);
+            rotation = 0;
+        }
         break;
     }
   }
