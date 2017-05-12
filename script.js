@@ -133,7 +133,7 @@ window.onload = function() {
               var indicatorLength = power*4;
               var indicator = Bodies.rectangle(10 + (indicatorLength / 2), 780, indicatorLength, 20, {
                 render: {
-                  fillStyle: 'white'
+                  fillStyle: '#33ff33'
                 },
                 isStatic: true
               });
