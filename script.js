@@ -9,6 +9,7 @@ window.onload = function() {
       Composite = Matter.Composite,
       Vector = Matter.Vector,
       Constraint = Matter.Constraint,
+      Events = Matter.Events,
       Vertices = Matter.Vertices;
 
   // create an engine
@@ -114,6 +115,32 @@ window.onload = function() {
       World.add(world, constr1);
     }
   }
+
+  function stop(body){
+    console.log("stop");
+    World.remove(world, body);
+  }
+
+  var points = 0;
+
+  function collision(event){
+    var pairs = event.pairs;
+    for(var i = 0; i < pairs.length; i++){
+      var bodyA = pairs[i].bodyA;
+      var bodyB = pairs[i].bodyB;
+      console.log(bodyA);
+      console.log(bodyB);
+      if(bodyB.id === 18 && bodyA.id === 9){
+        stop(bodyB);
+      }
+      if(bodyB.id === 18 && bodyA.label === "Circle Body"){
+        points += 1000;
+        console.log(points);
+      }
+    }
+  }
+
+  Events.on(engine, 'collisionStart', collision);
 
   var timeout1,
       power = 0,
