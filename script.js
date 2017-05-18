@@ -1,4 +1,7 @@
+
 window.onload = function() {
+
+  var canvas = document.createElement("canvas");
 
   // module aliases
   var Engine = Matter.Engine,
@@ -16,19 +19,14 @@ window.onload = function() {
   var engine = Engine.create();
       world = engine.world
 
-  // create a renderer
-  var canvas = {
-    width: 400,
-    height: 800
-  }
-
   var render = Render.create({
     element: document.body,
     engine: engine,
+    canvas: canvas,
     options: {
       wireframes: false,
-      width: canvas.width,
-      height: canvas.height,
+      width: 400,
+      height: 800,
     }
   });
 
